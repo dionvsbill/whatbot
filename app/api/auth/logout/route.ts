@@ -1,0 +1,1 @@
+import {NextResponse} from 'next/server';export async function POST(req:Request){const res=NextResponse.redirect(new URL('/',req.url));res.cookies.set('whatbot_session','',{httpOnly:true,expires:new Date(0),path:'/'});return res}
