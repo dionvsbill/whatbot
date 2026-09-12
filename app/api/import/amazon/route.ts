@@ -1,0 +1,1 @@
+import {NextResponse} from 'next/server';import {importAmazon} from '@/lib/importers/amazon';export async function POST(req:Request){try{const {url}=await req.json();return NextResponse.json(await importAmazon(url))}catch(e){return NextResponse.json({error:e instanceof Error?e.message:'Import failed'},{status:502})}}
