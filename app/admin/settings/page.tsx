@@ -1,0 +1,1 @@
+export default function Settings(){return <div><h1 className="text-2xl font-bold">Platform settings</h1><div className="mt-6 max-w-2xl rounded-2xl border bg-white p-6 text-sm text-slate-600">Paystack, WhatsApp Cloud API, Cloudinary and Amazon credentials are server-side environment variables and are never exposed to the browser.</div></div>
