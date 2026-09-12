@@ -1,0 +1,1 @@
+export default function Hero(){return <div><h1 className="text-2xl font-bold">Hero carousel</h1><div className="mt-6 max-w-2xl rounded-2xl border bg-white p-6 text-sm text-slate-600">Hero media should be uploaded to the configured Cloudinary account and referenced by the admin hero records. The storefront does not use invented product imagery.</div></div>
