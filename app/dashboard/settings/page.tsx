@@ -1,0 +1,1 @@
+export default function Settings(){return <div><h1 className="text-2xl font-bold">Shop settings</h1><div className="mt-6 max-w-2xl rounded-2xl border bg-white p-6 text-sm text-slate-600">Shop branding, delivery details, Paystack payout mode and WhatsApp routing are managed from the production configuration and shop profile.</div></div>
