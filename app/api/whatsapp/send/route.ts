@@ -1,1 +1,16 @@
-import {NextResponse} from 'next/server';export async function POST(req:Request){const {to,message}=await req.json();const token=process.env.WHATSAPP_ACCESS_TOKEN,phoneId=process.env.WHATSAPP_PHONE_ID;if(!token||!phoneId)return NextResponse.json({error:'WhatsApp Cloud API is not configured'},{status:503});const r=await fetch(`https://graph.facebook.com/v20.0/${phoneId}/messages`,{method:'POST',headers:{Authorization:`Bearer ${token}`,'Content-Type':'application/json'},body:JSON.stringify({messaging_product:'whatsapp',to,type:'text',text:{body:message}})});return NextResponse.json(await r.json(),{status:r.ok?200:502})}
+import { NextResponse } from 'next/server';
+import { sendWhatsAppText } from '@/lib/whatsapp';
+
+export async function POST(req: Request) {
+  try {
+    const { to, message, phoneNumberId } = await req.json();
+    if (!/^\+?[1-9]\d{7,14}$/.test(String(to || ''))) {
+      return NextResponse.json({ error: 'Invalid recipient phone number' }, { status: 400 });
+    }
+    if (!String(message || '').trim()) return NextResponse.json({ error: 'Message is required' }, { status: 400 });
+    const result = await sendWhatsAppText(String(to), String(message).trim(), phoneNumberId);
+    return NextResponse.json(result);
+  } catch (error) {
+    return NextResponse.json({ error: error instanceof Error ? error.message : 'WhatsApp send failed' }, { status: 502 });
+  }
+}
