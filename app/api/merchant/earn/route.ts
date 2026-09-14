@@ -12,12 +12,12 @@ async function shopForUser() {
 export async function GET() {
   const shop = await shopForUser();
   if (!shop) return NextResponse.json({ error: 'Shop not found' }, { status: 404 });
-  const [programs, campaigns, payouts] = await Promise.all([
+  const [programs, campaigns, totals] = await Promise.all([
     db.affiliateProgram.findMany({ where: { shopId: shop.id }, include: { _count: { select: { partners: true, clicks: true, commissions: true } } }, orderBy: { createdAt: 'desc' } }),
     db.creatorCampaign.findMany({ where: { shopId: shop.id }, include: { _count: { select: { applications: true } } }, orderBy: { createdAt: 'desc' } }),
     db.commission.aggregate({ where: { program: { shopId: shop.id } }, _sum: { amount: true, platformFee: true } }),
   ]);
-  return NextResponse.json({ programs, campaigns, totals: payouts._sum });
+  return NextResponse.json({ programs, campaigns, totals: totals._sum });
 }
 
 export async function POST(req: Request) {
@@ -35,4 +35,20 @@ export async function POST(req: Request) {
     return NextResponse.json({ campaign });
   }
   return NextResponse.json({ error: 'Invalid type' }, { status: 400 });
+}
+
+export async function PATCH(req: Request) {
+  const shop = await shopForUser();
+  if (!shop) return NextResponse.json({ error: 'Shop not found' }, { status: 404 });
+  const body = await req.json().catch(() => ({}));
+  const id = String(body.id || '');
+  if (!id) return NextResponse.json({ error: 'Missing id' }, { status: 400 });
+  if (body.type === 'program') {
+    const existing = await db.affiliateProgram.findFirst({ where: { id, shopId: shop.id } });
+    if (!existing) return NextResponse.json({ error: 'Not found' }, { status: 404 });
+    return NextResponse.json({ program: await db.affiliateProgram.update({ where: { id }, data: { status: body.status } }) });
+  }
+  const existing = await db.creatorCampaign.findFirst({ where: { id, shopId: shop.id } });
+  if (!existing) return NextResponse.json({ error: 'Not found' }, { status: 404 });
+  return NextResponse.json({ campaign: await db.creatorCampaign.update({ where: { id }, data: { status: body.status } }) });
 }
