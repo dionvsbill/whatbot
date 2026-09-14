@@ -19,7 +19,8 @@ export async function GET() {
 export async function POST(req: Request) {
   const userId = verifySession(cookies().get('whatbot_session')?.value);
   if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  const body = await req.json().catch(() => ({}));
+  const contentType = req.headers.get('content-type') || '';
+  const body = contentType.includes('application/json') ? await req.json().catch(() => ({})) : Object.fromEntries((await req.formData()).entries());
   if (body.action !== 'payout') return NextResponse.json({ error: 'Invalid action' }, { status: 400 });
   const amount = Number(body.amount);
   if (!Number.isFinite(amount) || amount < 20) return NextResponse.json({ error: 'Minimum payout is GHS 20' }, { status: 400 });
